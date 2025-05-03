@@ -1,0 +1,35 @@
+{% extends 'monitoreo/base.html' %}
+{% block content %}
+    <h2 class="neon-title mt-5" data-aos="fade-up">Sistema de Monitoreo</h2>
+
+    <div class="text-center my-4" data-aos="fade-up">
+        <a href="{% url 'agregar_evento' %}" class="btn btn-glow">+ Agregar Evento</a>
+    </div>
+
+    {% if eventos %}
+    <div class="table-responsive" data-aos="fade-up">
+        <table class="table table-dark table-bordered table-hover">
+            <thead>
+                <tr class="text-center">
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Dispositivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in eventos %}
+                <tr class="text-center">
+                    <td>{{ e.get_tipo_display }}</td>
+                    <td>{{ e.fecha }}</td>
+                    <td>{{ e.hora }}</td>
+                    <td>{{ e.dispositivo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-warning text-center">No hay eventos registrados.</div>
+    {% endif %}
+{% endblock %}

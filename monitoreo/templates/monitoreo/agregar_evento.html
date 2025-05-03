@@ -1,0 +1,28 @@
+{% extends 'monitoreo/base.html' %}
+{% block content %}
+<div class="section" data-aos="fade-up">
+    <h2 class="neon-title mb-4">Registrar Nuevo Evento</h2>
+    <form method="POST" class="bg-dark p-4 rounded shadow text-start w-75 mx-auto">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_tipo" class="form-label">Tipo de Evento</label>
+            {{ form.tipo }}
+        </div>
+        <div class="mb-3">
+            <label for="id_fecha" class="form-label">Fecha</label>
+            {{ form.fecha }}
+        </div>
+        <div class="mb-3">
+            <label for="id_hora" class="form-label">Hora</label>
+            {{ form.hora }}
+        </div>
+        <div class="mb-3">
+            <label for="id_dispositivo" class="form-label">Dispositivo</label>
+            {{ form.dispositivo }}
+        </div>
+        <div class="text-end">
+            <button type="submit" class="btn btn-glow">Guardar Evento</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
