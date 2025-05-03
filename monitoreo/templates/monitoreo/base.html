@@ -41,6 +41,20 @@
             0% { text-shadow: 0 0 10px #ff0040; }
             100% { text-shadow: 0 0 30px #ff0040, 0 0 60px #ff0040; }
         }
+
+        .btn-glow {
+        background-color: #ff0040;
+        color: #fff;
+        border: none;
+        box-shadow: 0 0 10px #ff0040, 0 0 20px #ff0040;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-glow:hover {
+            background-color: #cc0033;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff0040, 0 0 40px #ff0040;
+        }
     </style>
 </head>
 <body>

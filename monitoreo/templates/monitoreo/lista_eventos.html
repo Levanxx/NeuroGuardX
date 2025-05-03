@@ -1,10 +1,12 @@
 {% extends 'monitoreo/base.html' %}
+
 {% block content %}
     <h2 class="neon-title mt-5" data-aos="fade-up">Sistema de Monitoreo</h2>
 
-    <div class="text-center my-4" data-aos="fade-up">
+    <div class="text-center my-4 d-flex justify-content-center gap-3" data-aos="fade-up">
         <a href="{% url 'agregar_evento' %}" class="btn btn-glow">+ Agregar Evento</a>
-    </div>
+        <button onclick="agregarEvento()" class="btn btn-glow">+ Evento Aleatorio</button>
+    </div>          
 
     {% if eventos %}
     <div class="table-responsive" data-aos="fade-up">
@@ -17,7 +19,7 @@
                     <th>Dispositivo</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tabla-eventos">
                 {% for e in eventos %}
                 <tr class="text-center">
                     <td>{{ e.get_tipo_display }}</td>
@@ -32,4 +34,30 @@
     {% else %}
     <div class="alert alert-warning text-center">No hay eventos registrados.</div>
     {% endif %}
+    
+    <script>
+        function agregarEvento() {
+            const tipos = ["Ataque", "Anomalía"];
+            const dispositivos = ["Smartwatch", "Anillo Inteligente", "Almohada Inteligente"];
+
+            const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+            const dispositivo = dispositivos[Math.floor(Math.random() * dispositivos.length)];
+
+            const fecha = new Date();
+            const fechaStr = fecha.toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" });
+            const horaStr = fecha.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" });
+
+            const nuevaFila = document.createElement("tr");
+            nuevaFila.className = "text-center";
+            nuevaFila.innerHTML = `
+                <td>${tipo}</td>
+                <td>${fechaStr}</td>
+                <td>${horaStr}</td>
+                <td>${dispositivo}</td>
+            `;
+
+            const tbody = document.getElementById("tabla-eventos");
+            tbody.appendChild(nuevaFila);
+        }
+    </script>
 {% endblock %}
