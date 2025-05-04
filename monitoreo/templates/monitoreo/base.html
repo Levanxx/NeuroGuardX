@@ -59,7 +59,10 @@
 </head>
 <body>
     <div class="container text-center py-5">
+        {% if request.path == '/' %}
         <h1 class="neon-title" data-aos="fade-down">🧠 NeuroGuard: Monitoreo Inteligente</h1>
+        {% endif %}
+
         {% block content %}{% endblock %}
     </div>
 
