@@ -1,63 +1,228 @@
 {% extends 'monitoreo/base.html' %}
 
 {% block content %}
-    <h2 class="neon-title mt-5" data-aos="fade-up">Sistema de Monitoreo</h2>
+<h2 class="neon-title mt-5" data-aos="fade-up">Sistema de Monitoreo</h2>
 
-    <div class="text-center my-4 d-flex justify-content-center gap-3" data-aos="fade-up">
-        <a href="{% url 'agregar_evento' %}" class="btn btn-glow">+ Agregar Evento</a>
-        <button onclick="agregarEvento()" class="btn btn-glow">+ Evento Aleatorio</button>
-    </div>          
+<div class="text-center my-4 d-flex justify-content-center gap-3" data-aos="fade-up">
+    <a href="{% url 'agregar_evento' %}" class="btn btn-glow">+ Agregar Evento</a>
+    <button onclick="agregarEvento()" class="btn btn-glow">+ Evento Aleatorio</button>
+</div>
 
-    {% if eventos %}
-    <div class="table-responsive" data-aos="fade-up">
-        <table class="table table-dark table-bordered table-hover">
-            <thead>
-                <tr class="text-center">
-                    <th>Tipo</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Dispositivo</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-eventos">
-                {% for e in eventos %}
-                <tr class="text-center">
-                    <td>{{ e.get_tipo_display }}</td>
-                    <td>{{ e.fecha }}</td>
-                    <td>{{ e.hora }}</td>
-                    <td>{{ e.dispositivo }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% if eventos %}
+<div class="table-responsive" data-aos="fade-up">
+    <table class="table table-dark table-bordered table-hover">
+        <thead>
+            <tr class="text-center">
+                <th>Tipo</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Dispositivo</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-eventos">
+            {% for e in eventos %}
+            <tr class="text-center">
+                <td>{{ e.get_tipo_display }}</td>
+                <td>{{ e.fecha }}</td>
+                <td>{{ e.hora }}</td>
+                <td>{{ e.dispositivo }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-warning text-center">No hay eventos registrados.</div>
+{% endif %}
+
+<!-- Botón flotante para mostrar el chatbot -->
+<button class="toggle-chatbot" onclick="toggleChatbot()">💬 Chat</button>
+
+<!-- Chatbot -->
+<div class="chatbot-container" style="display: none;">
+    <div class="chatbot-header">Levanx AI</div>
+    <div class="chatbot-body" id="chatbox">
+        <div class="chatbot-message">Hola, soy Nhyrex. ¿En qué te puedo ayudar?</div>
     </div>
-    {% else %}
-    <div class="alert alert-warning text-center">No hay eventos registrados.</div>
-    {% endif %}
-    
-    <script>
-        function agregarEvento() {
-            const tipos = ["Ataque", "Anomalía"];
-            const dispositivos = ["Smartwatch", "Anillo Inteligente", "Almohada Inteligente"];
+    <div class="chatbot-footer">
+        <input type="text" placeholder="Escribe tu mensaje..." class="chatbot-input" id="userInput">
+        <button class="chatbot-send" onclick="responder()">Enviar</button>
+    </div>
+</div>
 
-            const tipo = tipos[Math.floor(Math.random() * tipos.length)];
-            const dispositivo = dispositivos[Math.floor(Math.random() * dispositivos.length)];
+<style>
+.toggle-chatbot {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    background: linear-gradient(to right, #ff0040, #a000f0);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff0040;
+}
 
-            const fecha = new Date();
-            const fechaStr = fecha.toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" });
-            const horaStr = fecha.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" });
+.chatbot-container {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    width: 320px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(255, 0, 80, 0.5);
+    animation: borderPulse 4s linear infinite;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #0c0c0c;
+    border: 1px solid transparent;
+    z-index: 999;
+}
 
-            const nuevaFila = document.createElement("tr");
-            nuevaFila.className = "text-center";
-            nuevaFila.innerHTML = `
-                <td>${tipo}</td>
-                <td>${fechaStr}</td>
-                <td>${horaStr}</td>
-                <td>${dispositivo}</td>
-            `;
+.chatbot-header {
+    padding: 12px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    background: linear-gradient(to right, #ff0040, #a000f0);
+}
 
-            const tbody = document.getElementById("tabla-eventos");
-            tbody.appendChild(nuevaFila);
+.chatbot-body {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #111;
+}
+
+.chatbot-message, .user-message {
+    margin: 8px 0;
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 85%;
+}
+
+.chatbot-message {
+    background-color: #ff0040;
+    color: white;
+    align-self: flex-start;
+}
+
+.user-message {
+    background-color: #333;
+    color: white;
+    align-self: flex-end;
+    text-align: right;
+    margin-left: auto;
+}
+
+.chatbot-footer {
+    display: flex;
+    background-color: #1a1a1a;
+}
+
+.chatbot-input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: #333;
+    color: white;
+}
+
+.chatbot-send {
+    background: linear-gradient(to right, #ff0040, #a000f0);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+@keyframes borderPulse {
+    0% { box-shadow: 0 0 8px #ff0040; }
+    50% { box-shadow: 0 0 16px #a000f0; }
+    100% { box-shadow: 0 0 8px #ff0040; }
+}
+</style>
+
+<script>
+function agregarEvento() {
+    const tipos = ["Ataque", "Anomalía"];
+    const dispositivos = ["Smartwatch", "Anillo Inteligente", "Almohada Inteligente"];
+
+    const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+    const dispositivo = dispositivos[Math.floor(Math.random() * dispositivos.length)];
+
+    const fecha = new Date();
+    const fechaStr = fecha.toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" });
+    const horaStr = fecha.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit", hour12: true });
+
+    const nuevaFila = document.createElement("tr");
+    nuevaFila.className = "text-center";
+    nuevaFila.innerHTML = `
+        <td>${tipo}</td>
+        <td>${fechaStr}</td>
+        <td>${horaStr}</td>
+        <td>${dispositivo}</td>
+    `;
+
+    document.getElementById("tabla-eventos").appendChild(nuevaFila);
+}
+
+function responder() {
+    const input = document.getElementById("userInput");
+    const mensaje = input.value.trim();
+    if (mensaje === "") return;
+
+    const chatbox = document.getElementById("chatbox");
+
+    const userMsg = document.createElement("div");
+    userMsg.className = "user-message";
+    userMsg.textContent = mensaje;
+    chatbox.appendChild(userMsg);
+
+    fetch("{% url 'chatbot' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ message: mensaje })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const botMsg = document.createElement("div");
+        botMsg.className = "chatbot-message";
+        botMsg.textContent = data.reply;
+        chatbox.appendChild(botMsg);
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+        if (data.evento_registrado) {
+            agregarFilaEvento(data.evento_registrado);
         }
-    </script>
+    });
+
+    input.value = "";
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+function agregarFilaEvento(evento) {
+    const nuevaFila = document.createElement("tr");
+    nuevaFila.className = "text-center";
+    nuevaFila.innerHTML = `
+        <td>${evento.tipo}</td>
+        <td>${evento.fecha}</td>
+        <td>${evento.hora}</td>
+        <td>${evento.dispositivo}</td>
+    `;
+    document.getElementById("tabla-eventos").appendChild(nuevaFila);
+}
+
+function toggleChatbot() {
+    const chatbot = document.querySelector('.chatbot-container');
+    chatbot.style.display = (chatbot.style.display === 'none' || chatbot.style.display === '') ? 'block' : 'none';
+}
+</script>
+
 {% endblock %}

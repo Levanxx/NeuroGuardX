@@ -7,9 +7,9 @@ TIPO_EVENTO_CHOICES = [
 
 DISPOSITIVOS_CHOICES = [
     ('', '---------'),  # <- valor vacío por defecto
-    ('almohada', 'Almohada Inteligente'),
-    ('anillo', 'Anillo Inteligente'),
-    ('watch', 'Smartwatch'),
+    ('Almohada', 'Almohada Inteligente'),
+    ('Anillo', 'Anillo Inteligente'),
+    ('Watch', 'Smartwatch'),
 ]
 
 class Evento(models.Model):
