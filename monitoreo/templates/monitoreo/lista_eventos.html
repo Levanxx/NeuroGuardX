@@ -1,32 +1,95 @@
 {% extends 'monitoreo/base.html' %}
 
 {% block content %}
-<h2 class="neon-title mt-5" data-aos="fade-up">Sistema de Monitoreo</h2>
+<h2 class="neon-title mt-5" data-aos="fade-up" title="Aquí se listan todos los eventos registrados automáticamente o manualmente.">
+    Sistema de Monitoreo
+</h2>
 
 <div class="text-center my-4 d-flex justify-content-center gap-3" data-aos="fade-up">
-    <a href="{% url 'agregar_evento' %}" class="btn btn-glow">+ Agregar Evento</a>
-    <button onclick="agregarEvento()" class="btn btn-glow">+ Evento Aleatorio</button>
+    <a href="{% url 'agregar_evento' %}" class="btn btn-critical" title="Crea un nuevo evento desde cero.">+ Agregar Evento</a>
+    <button onclick="agregarEvento()" class="btn btn-neutral" title="Simula un evento generado por los sensores.">+ Evento Aleatorio</button>
 </div>
 
 {% if eventos %}
 <div class="table-responsive" data-aos="fade-up">
-    <table class="table table-dark table-bordered table-hover">
+
+    <!-- GRAVES -->
+    <h4 class="text-start text-danger mt-4">🔴 Eventos Graves</h4>
+    <table class="table table-bordered custom-table">
         <thead>
             <tr class="text-center">
                 <th>Tipo</th>
+                <th>Criticidad</th>
                 <th>Fecha</th>
                 <th>Hora</th>
                 <th>Dispositivo</th>
             </tr>
         </thead>
-        <tbody id="tabla-eventos">
+        <tbody id="tabla-graves">
             {% for e in eventos %}
+                {% if e.criticidad == "grave" %}
+                <tr class="text-center evento-critico">
+                    <td>⚠️ {{ e.get_tipo_display }}</td>
+                    <td>🔴 Grave</td>
+                    <td>{{ e.fecha }}</td>
+                    <td>{{ e.hora }}</td>
+                    <td>{{ e.dispositivo }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- MODERADOS -->
+    <h4 class="text-start text-warning mt-5">🟡 Eventos Moderados</h4>
+    <table class="table table-bordered custom-table">
+        <thead>
             <tr class="text-center">
-                <td>{{ e.get_tipo_display }}</td>
-                <td>{{ e.fecha }}</td>
-                <td>{{ e.hora }}</td>
-                <td>{{ e.dispositivo }}</td>
+                <th>Tipo</th>
+                <th>Criticidad</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Dispositivo</th>
             </tr>
+        </thead>
+        <tbody id="tabla-moderados">
+            {% for e in eventos %}
+                {% if e.criticidad == "moderado" %}
+                <tr class="text-center">
+                    <td>{{ e.get_tipo_display }}</td>
+                    <td>🟡 Moderado</td>
+                    <td>{{ e.fecha }}</td>
+                    <td>{{ e.hora }}</td>
+                    <td>{{ e.dispositivo }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- LEVES -->
+    <h4 class="text-start text-success mt-5">🟢 Eventos Leves</h4>
+    <table class="table table-bordered custom-table">
+        <thead>
+            <tr class="text-center">
+                <th>Tipo</th>
+                <th>Criticidad</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Dispositivo</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-leves">
+            {% for e in eventos %}
+                {% if e.criticidad == "leve" %}
+                <tr class="text-center">
+                    <td>{{ e.get_tipo_display }}</td>
+                    <td>🟢 Leve</td>
+                    <td>{{ e.fecha }}</td>
+                    <td>{{ e.hora }}</td>
+                    <td>{{ e.dispositivo }}</td>
+                </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>
@@ -36,21 +99,33 @@
 {% endif %}
 
 <!-- Botón flotante para mostrar el chatbot -->
-<button class="toggle-chatbot" onclick="toggleChatbot()">💬 Chat</button>
+<button class="toggle-chatbot" onclick="toggleChatbot()" title="Haz clic aquí para hablar con Nhyrex, tu asistente virtual.">💬 Chat</button>
 
 <!-- Chatbot -->
 <div class="chatbot-container" style="display: none;">
-    <div class="chatbot-header">Levanx AI</div>
+    <div class="chatbot-header">Nhyrex – Asistente Virtual</div>
     <div class="chatbot-body" id="chatbox">
         <div class="chatbot-message">Hola, soy Nhyrex. ¿En qué te puedo ayudar?</div>
     </div>
     <div class="chatbot-footer">
-        <input type="text" placeholder="Escribe tu mensaje..." class="chatbot-input" id="userInput">
+        <input type="text" placeholder="Escribe tu mensaje..." class="chatbot-input" id="userInput" onkeydown="if(event.key==='Enter'){responder();}">
         <button class="chatbot-send" onclick="responder()">Enviar</button>
     </div>
 </div>
 
 <style>
+.custom-table th {
+    background-color: #111;
+    color: #fff;
+    border-color: #333;
+}
+.custom-table td, .custom-table th {
+    vertical-align: middle;
+}
+.evento-critico {
+    border-left: 5px solid #ff0040;
+    background-color: #1b0e0e !important;
+}
 .toggle-chatbot {
     position: fixed;
     bottom: 30px;
@@ -65,71 +140,65 @@
     cursor: pointer;
     box-shadow: 0 0 10px #ff0040;
 }
-
 .chatbot-container {
     position: fixed;
     bottom: 90px;
     right: 30px;
-    width: 320px;
+    width: 330px;
     border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 0 15px rgba(255, 0, 80, 0.5);
-    animation: borderPulse 4s linear infinite;
-    font-family: 'Segoe UI', sans-serif;
     background-color: #0c0c0c;
-    border: 1px solid transparent;
-    z-index: 999;
+    border: 2px solid #ff0040;
+    box-shadow: 0 0 20px rgba(255, 0, 80, 0.5);
+    font-family: 'Segoe UI', sans-serif;
+    z-index: 1001;
 }
-
 .chatbot-header {
-    padding: 12px;
+    padding: 14px;
     font-weight: bold;
     text-align: center;
     color: white;
     background: linear-gradient(to right, #ff0040, #a000f0);
+    font-size: 1rem;
 }
-
 .chatbot-body {
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
-    padding: 10px;
+    padding: 12px;
     background-color: #111;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
-
 .chatbot-message, .user-message {
-    margin: 8px 0;
     padding: 10px 15px;
     border-radius: 12px;
-    max-width: 85%;
+    max-width: 80%;
+    animation: fadeIn 0.2s ease-in;
 }
-
 .chatbot-message {
     background-color: #ff0040;
     color: white;
     align-self: flex-start;
 }
-
 .user-message {
     background-color: #333;
     color: white;
     align-self: flex-end;
-    text-align: right;
     margin-left: auto;
 }
-
 .chatbot-footer {
     display: flex;
     background-color: #1a1a1a;
+    border-top: 1px solid #333;
 }
-
 .chatbot-input {
     flex: 1;
     padding: 10px;
     border: none;
-    background-color: #333;
+    background-color: #222;
     color: white;
+    outline: none;
 }
-
 .chatbot-send {
     background: linear-gradient(to right, #ff0040, #a000f0);
     border: none;
@@ -138,38 +207,9 @@
     font-weight: bold;
     cursor: pointer;
 }
-
-@keyframes borderPulse {
-    0% { box-shadow: 0 0 8px #ff0040; }
-    50% { box-shadow: 0 0 16px #a000f0; }
-    100% { box-shadow: 0 0 8px #ff0040; }
-}
 </style>
 
 <script>
-function agregarEvento() {
-    const tipos = ["Ataque", "Anomalía"];
-    const dispositivos = ["Smartwatch", "Anillo Inteligente", "Almohada Inteligente"];
-
-    const tipo = tipos[Math.floor(Math.random() * tipos.length)];
-    const dispositivo = dispositivos[Math.floor(Math.random() * dispositivos.length)];
-
-    const fecha = new Date();
-    const fechaStr = fecha.toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" });
-    const horaStr = fecha.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit", hour12: true });
-
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.className = "text-center";
-    nuevaFila.innerHTML = `
-        <td>${tipo}</td>
-        <td>${fechaStr}</td>
-        <td>${horaStr}</td>
-        <td>${dispositivo}</td>
-    `;
-
-    document.getElementById("tabla-eventos").appendChild(nuevaFila);
-}
-
 function responder() {
     const input = document.getElementById("userInput");
     const mensaje = input.value.trim();
@@ -208,21 +248,79 @@ function responder() {
 }
 
 function agregarFilaEvento(evento) {
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.className = "text-center";
-    nuevaFila.innerHTML = `
-        <td>${evento.tipo}</td>
+    const fila = document.createElement("tr");
+    fila.className = "text-center";
+
+    let emoji = evento.criticidad === "Grave" ? "🔴 Grave"
+               : evento.criticidad === "Moderado" ? "🟡 Moderado"
+               : "🟢 Leve";
+
+    if (evento.criticidad === "Grave") {
+        fila.classList.add("evento-critico");
+    }
+
+    fila.innerHTML = `
+        <td>${evento.tipo === "Ataque" ? "⚠️ " + evento.tipo : evento.tipo}</td>
+        <td>${emoji}</td>
         <td>${evento.fecha}</td>
         <td>${evento.hora}</td>
         <td>${evento.dispositivo}</td>
     `;
-    document.getElementById("tabla-eventos").appendChild(nuevaFila);
+
+    const tablaID = evento.criticidad === "Grave" ? "tabla-graves"
+                  : evento.criticidad === "Moderado" ? "tabla-moderados"
+                  : "tabla-leves";
+
+    const tabla = document.getElementById(tablaID);
+    if (tabla) tabla.appendChild(fila);
 }
 
 function toggleChatbot() {
     const chatbot = document.querySelector('.chatbot-container');
-    chatbot.style.display = (chatbot.style.display === 'none' || chatbot.style.display === '') ? 'block' : 'none';
+    chatbot.style.display = chatbot.style.display === 'none' || chatbot.style.display === '' ? 'block' : 'none';
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.altKey && e.key.toLowerCase() === "n") {
+        e.preventDefault();
+        window.location.href = "{% url 'agregar_evento' %}";
+    }
+    if (e.altKey && e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        toggleChatbot();
+    }
+    if (e.key === "Escape") {
+        const chatbot = document.querySelector('.chatbot-container');
+        if (chatbot && chatbot.style.display === 'block') {
+            chatbot.style.display = 'none';
+        }
+    }
+});
+
+function agregarEvento() {
+    const tipos = ["Ataque", "Anomalía", "Chequeo General"];
+    const criticidades = ["Grave", "Moderado", "Leve"];
+    const dispositivos = ["Smartwatch", "Anillo", "Almohada Inteligente"];
+
+    const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+    const criticidad = criticidades[Math.floor(Math.random() * criticidades.length)];
+    const dispositivo = dispositivos[Math.floor(Math.random() * dispositivos.length)];
+
+    const fecha = new Date();
+    const fechaStr = fecha.toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" });
+    const horaStr = fecha.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit", hour12: true });
+
+    const evento = {
+        tipo: tipo,
+        criticidad: criticidad,
+        fecha: fechaStr,
+        hora: horaStr,
+        dispositivo: dispositivo
+    };
+
+    agregarFilaEvento(evento);
 }
 </script>
+
 
 {% endblock %}

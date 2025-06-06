@@ -1,28 +1,108 @@
 {% extends 'monitoreo/base.html' %}
+
 {% block content %}
 <div class="section" data-aos="fade-up">
     <h2 class="neon-title mb-4">Registrar Nuevo Evento</h2>
-    <form method="POST" class="bg-dark p-4 rounded shadow text-start w-75 mx-auto">
+
+    <form method="POST" class="bg-dark p-4 rounded shadow text-start w-75 mx-auto" id="eventoForm" onsubmit="return validarFormulario();">
         {% csrf_token %}
-        <div class="mb-3">
-            <label for="id_tipo" class="form-label">Tipo de Evento</label>
+
+        <div class="mb-3 position-relative">
+            <label for="id_tipo" class="form-label">
+                Tipo de Evento 
+                <span class="info-tooltip" title="Ej: Ataque, Anomalía o Chequeo.">?</span>
+            </label>
             {{ form.tipo }}
         </div>
-        <div class="mb-3">
-            <label for="id_fecha" class="form-label">Fecha</label>
+
+        <div class="mb-3 position-relative">
+            <label for="id_criticidad" class="form-label">
+                Nivel de Criticidad 
+                <span class="info-tooltip" title="Selecciona si el evento es leve, moderado o grave.">?</span>
+            </label>
+            {{ form.criticidad }}
+        </div>
+
+        <div class="mb-3 position-relative">
+            <label for="id_fecha" class="form-label">
+                Fecha 
+                <span class="info-tooltip" title="Fecha en que ocurrió el evento.">?</span>
+            </label>
             {{ form.fecha }}
         </div>
-        <div class="mb-3">
-            <label for="id_hora" class="form-label">Hora</label>
+
+        <div class="mb-3 position-relative">
+            <label for="id_hora" class="form-label">
+                Hora 
+                <span class="info-tooltip" title="Hora exacta del evento.">?</span>
+            </label>
             {{ form.hora }}
         </div>
-        <div class="mb-3">
-            <label for="id_dispositivo" class="form-label">Dispositivo</label>
+
+        <div class="mb-3 position-relative">
+            <label for="id_dispositivo" class="form-label">
+                Dispositivo 
+                <span class="info-tooltip" title="Dispositivo que detectó el evento.">?</span>
+            </label>
             {{ form.dispositivo }}
         </div>
-        <div class="text-end">
-            <button type="submit" class="btn btn-glow">Guardar Evento</button>
+
+        <div class="text-end d-flex justify-content-end gap-2">
+            <button type="reset" class="btn btn-neutral" id="btnReiniciar">Reiniciar</button>
+            <button type="submit" class="btn btn-success-ngx">Guardar Evento</button>
         </div>
     </form>
 </div>
+
+<style>
+.info-tooltip {
+    display: inline-block;
+    margin-left: 6px;
+    background-color: #444;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    cursor: help;
+    font-size: 0.8rem;
+    box-shadow: 0 0 4px #ff0040;
+}
+</style>
+
+<script>
+function validarFormulario() {
+    const campos = [
+        "id_tipo",
+        "id_criticidad",
+        "id_fecha",
+        "id_hora",
+        "id_dispositivo"
+    ];
+    for (let id of campos) {
+        const val = document.getElementById(id).value.trim();
+        if (!val) {
+            alert("Por favor, completa todos los campos antes de continuar.");
+            return false;
+        }
+    }
+    return true;
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.altKey && e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        document.getElementById("btnReiniciar").click();
+    }
+    if (e.altKey && e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        toggleChatbot();
+    }
+    if (e.key === "Escape") {
+        const chatbot = document.querySelector('.chatbot-container');
+        if (chatbot && chatbot.style.display === 'block') {
+            chatbot.style.display = 'none';
+        }
+    }
+});
+</script>
 {% endblock %}
