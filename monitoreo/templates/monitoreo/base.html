@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroGuard</title>
+    <title>NeuroGuardX</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
@@ -12,55 +12,97 @@
             color: #fff;
             font-family: 'Segoe UI', Roboto, sans-serif;
         }
+
         h1, h2, h3, h4, h5 {
             font-weight: 600;
         }
+
         .neon-title {
             color: #ff0040;
-            text-shadow: 0 0 10px #ff0040, 0 0 20px #ff0040, 0 0 40px #ff0040;
+            text-shadow: 0 0 8px #ff0040, 0 0 16px #ff0040;
             animation: pulse 1.5s infinite alternate;
         }
-        .btn-glow {
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 8px #ff0040; }
+            100% { text-shadow: 0 0 16px #ff0040, 0 0 24px #ff0040; }
+        }
+
+        /* Botón rojo crítico (Ej: Agregar Evento con alerta grave) */
+        .btn-critical {
             background-color: #ff0040;
             color: #fff;
             border: none;
             box-shadow: 0 0 10px #ff0040, 0 0 20px #ff0040;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .btn-glow:hover {
+
+        .btn-critical:hover {
             background-color: #cc0033;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff0040, 0 0 40px #ff0040;
         }
+
+        /* Botón verde de éxito (Ej: Guardar) */
+        .btn-success-ngx {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 10px #28a745, 0 0 20px #28a745;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-success-ngx:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #28a745, 0 0 40px #28a745;
+        }
+
+        /* Botón neutro (gris o azul claro) */
+        .btn-neutral {
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 10px #6c757d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-neutral:hover {
+            background-color: #5a6268;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #6c757d;
+        }
+
+        /* Botón para Chat / Asistencia */
+        .btn-chat {
+            background-color: #17a2b8;
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 10px #17a2b8;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-chat:hover {
+            background-color: #138496;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #17a2b8;
+        }
+
         .form-control, .form-select {
             background-color: #4b525a;
             color: white;
             border: none;
         }
+
         .section {
             padding: 60px 0;
-        }
-        @keyframes pulse {
-            0% { text-shadow: 0 0 10px #ff0040; }
-            100% { text-shadow: 0 0 30px #ff0040, 0 0 60px #ff0040; }
-        }
-
-        .btn-glow {
-        background-color: #ff0040;
-        color: #fff;
-        border: none;
-        box-shadow: 0 0 10px #ff0040, 0 0 20px #ff0040;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .btn-glow:hover {
-            background-color: #cc0033;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px #ff0040, 0 0 40px #ff0040;
         }
     </style>
 </head>
 <body>
     <div class="container text-center py-5">
         {% if request.path == '/' %}
-        <h1 class="neon-title" data-aos="fade-down">🧠 NeuroGuard: Monitoreo Inteligente</h1>
+        <h1 class="neon-title" data-aos="fade-down">🧠 NeuroGuardX: Monitoreo Inteligente</h1>
         {% endif %}
 
         {% block content %}{% endblock %}

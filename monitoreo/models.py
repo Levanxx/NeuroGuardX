@@ -1,22 +1,23 @@
 from django.db import models
 
-TIPO_EVENTO_CHOICES = [
-    ('ataque', 'Ataque'),
-    ('anomalia', 'Anomalía'),
-]
-
-DISPOSITIVOS_CHOICES = [
-    ('', '---------'),  # <- valor vacío por defecto
-    ('Almohada', 'Almohada Inteligente'),
-    ('Anillo', 'Anillo Inteligente'),
-    ('Watch', 'Smartwatch'),
-]
-
 class Evento(models.Model):
-    tipo = models.CharField(max_length=20, choices=TIPO_EVENTO_CHOICES)
+    TIPO_EVENTO = [
+        ('ataque', 'Ataque'),
+        ('anomalia', 'Anomalía'),
+        ('normal', 'Chequeo General'),
+    ]
+
+    CRITICIDAD = [
+        ('leve', 'Leve'),
+        ('moderado', 'Moderado'),
+        ('grave', 'Grave'),
+    ]
+
+    tipo = models.CharField(max_length=20, choices=TIPO_EVENTO)
+    criticidad = models.CharField(max_length=10, choices=CRITICIDAD, default='moderado')
     fecha = models.DateField()
     hora = models.TimeField()
-    dispositivo = models.CharField(max_length=50, choices=DISPOSITIVOS_CHOICES, blank=False)
+    dispositivo = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.get_tipo_display()} - {self.fecha} - {self.hora}"
+        return f"{self.get_tipo_display()} ({self.fecha})"
