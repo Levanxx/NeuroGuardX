@@ -1,6 +1,21 @@
 {% extends 'monitoreo/base.html' %}
 
 {% block content %}
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if request.GET.success %}
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Evento registrado',
+    text: 'El evento se ha guardado correctamente.',
+    timer: 2500,
+    showConfirmButton: false
+});
+</script>
+{% endif %}
+
 <div class="section" data-aos="fade-up">
     <h2 class="neon-title mb-4">Registrar Nuevo Evento</h2>
 

@@ -1,6 +1,12 @@
 {% extends 'monitoreo/base.html' %}
 
 {% block content %}
+
+<!-- DataTables CSS y JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 <h2 class="neon-title mt-5" data-aos="fade-up" title="Aquí se listan todos los eventos registrados automáticamente o manualmente.">
     Sistema de Monitoreo
 </h2>
@@ -15,7 +21,7 @@
 
     <!-- GRAVES -->
     <h4 class="text-start text-danger mt-4">🔴 Eventos Graves</h4>
-    <table class="table table-bordered custom-table">
+    <table id="tabla-graves" class="table table-bordered custom-table">
         <thead>
             <tr class="text-center">
                 <th>Tipo</th>
@@ -25,7 +31,7 @@
                 <th>Dispositivo</th>
             </tr>
         </thead>
-        <tbody id="tabla-graves">
+        <tbody>
             {% for e in eventos %}
                 {% if e.criticidad == "grave" %}
                 <tr class="text-center evento-critico">
@@ -42,7 +48,7 @@
 
     <!-- MODERADOS -->
     <h4 class="text-start text-warning mt-5">🟡 Eventos Moderados</h4>
-    <table class="table table-bordered custom-table">
+    <table id="tabla-moderados" class="table table-bordered custom-table">
         <thead>
             <tr class="text-center">
                 <th>Tipo</th>
@@ -52,7 +58,7 @@
                 <th>Dispositivo</th>
             </tr>
         </thead>
-        <tbody id="tabla-moderados">
+        <tbody>
             {% for e in eventos %}
                 {% if e.criticidad == "moderado" %}
                 <tr class="text-center">
@@ -69,7 +75,7 @@
 
     <!-- LEVES -->
     <h4 class="text-start text-success mt-5">🟢 Eventos Leves</h4>
-    <table class="table table-bordered custom-table">
+    <table id="tabla-leves" class="table table-bordered custom-table">
         <thead>
             <tr class="text-center">
                 <th>Tipo</th>
@@ -79,7 +85,7 @@
                 <th>Dispositivo</th>
             </tr>
         </thead>
-        <tbody id="tabla-leves">
+        <tbody>
             {% for e in eventos %}
                 {% if e.criticidad == "leve" %}
                 <tr class="text-center">
@@ -271,7 +277,7 @@ function agregarFilaEvento(evento) {
                   : evento.criticidad === "Moderado" ? "tabla-moderados"
                   : "tabla-leves";
 
-    const tabla = document.getElementById(tablaID);
+    const tabla = document.getElementById(tablaID).getElementsByTagName("tbody")[0];
     if (tabla) tabla.appendChild(fila);
 }
 
@@ -320,7 +326,30 @@ function agregarEvento() {
 
     agregarFilaEvento(evento);
 }
-</script>
 
+$(document).ready(function () {
+    $('#tabla-graves').DataTable({
+        pageLength: 5,
+        order: [[2, 'desc']],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        }
+    });
+    $('#tabla-moderados').DataTable({
+        pageLength: 5,
+        order: [[2, 'desc']],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        }
+    });
+    $('#tabla-leves').DataTable({
+        pageLength: 5,
+        order: [[2, 'desc']],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        }
+    });
+});
+</script>
 
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Evento, Doctor
@@ -7,20 +8,23 @@ from .forms import EventoForm
 import datetime
 import json
 
+# VISTA: Listar eventos
 def lista_eventos(request):
     eventos = Evento.objects.all().order_by('-fecha', '-hora')
     return render(request, 'monitoreo/lista_eventos.html', {'eventos': eventos})
 
+# VISTA: Agregar evento manualmente
 def agregar_evento(request):
     if request.method == 'POST':
         form = EventoForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('lista_eventos')
+            return redirect(f"{reverse('agregar_evento')}?success=1")
     else:
         form = EventoForm()
     return render(request, 'monitoreo/agregar_evento.html', {'form': form})
 
+# VISTA: Chatbot con IA simple
 def chatbot(request):
     if request.method == 'POST':
         try:
@@ -113,6 +117,7 @@ def chatbot(request):
 
     return JsonResponse({'reply': 'Método no permitido'}, status=405)
 
+# VISTA: Login exclusivo para doctores
 def login_doctor(request):
     error = None
     if request.method == 'POST':
@@ -124,7 +129,7 @@ def login_doctor(request):
             try:
                 doctor = Doctor.objects.get(user=user)
                 login(request, user)
-                return redirect('doctor_dashboard')
+                return redirect('/doctor/dashboard/?success=1')
             except Doctor.DoesNotExist:
                 error = 'Este usuario no tiene perfil de doctor.'
         else:
@@ -132,32 +137,13 @@ def login_doctor(request):
 
     return render(request, 'monitoreo/login_doctor.html', {'error': error})
 
+# VISTA: Panel del doctor (estilo index, con filtros y opción de exportar)
 @login_required
 def doctor_dashboard(request):
-    eventos = Evento.objects.all().order_by('-fecha', '-hora')[:10]
+    eventos = Evento.objects.all().order_by('-fecha', '-hora')
     return render(request, 'monitoreo/doctor_dashboard.html', {'eventos': eventos})
 
+# VISTA: Cierre de sesión
 def logout_view(request):
     logout(request)
     return redirect('login_doctor')
-
-# Dentro de views.py
-def login_doctor(request):
-    error = None
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            from .models import Doctor
-            try:
-                doctor = Doctor.objects.get(user=user)
-                login(request, user)
-                return redirect('/doctor/dashboard/?success=1')  # <--- importante
-            except Doctor.DoesNotExist:
-                error = 'Este usuario no tiene perfil de doctor.'
-        else:
-            error = 'Usuario o contraseña incorrectos.'
-
-    return render(request, 'monitoreo/login_doctor.html', {'error': error})
