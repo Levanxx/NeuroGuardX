@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from .models import Evento
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from .models import Evento, Doctor
 from .forms import EventoForm
 import datetime
 import json
@@ -29,12 +31,11 @@ def chatbot(request):
 
         pregunta = user_message \
             .replace('á', 'a').replace('é', 'e') \
-            .replace('í', 'i').replace('ó', 'o') \
-            .replace('ú', 'u').replace('¿', '').replace('?', '')
+            .replace('í', 'i').replace('ó', 'o').replace('ú', 'u') \
+            .replace('¿', '').replace('?', '')
 
         sesion = request.session
 
-        # Paso 2: Si estamos esperando criticidad
         if sesion.get('esperando_criticidad'):
             criticidad = None
             if 'leve' in pregunta:
@@ -57,7 +58,6 @@ def chatbot(request):
                     dispositivo=dispositivo
                 )
 
-                # Limpiar sesión
                 sesion.pop('esperando_criticidad', None)
                 sesion.pop('tipo', None)
                 sesion.pop('dispositivo', None)
@@ -75,7 +75,6 @@ def chatbot(request):
             else:
                 return JsonResponse({'reply': 'Por favor indica si es leve, moderado o grave.'})
 
-        # Paso 1: Saludos y ayuda
         if 'hola' in pregunta or 'buenas' in pregunta:
             return JsonResponse({'reply': '¡Hola! ¿Quieres registrar un evento o saber el estado del sistema?'})
 
@@ -88,7 +87,6 @@ def chatbot(request):
         if 'funcion' in pregunta or 'puedes hacer' in pregunta or 'reporte' in pregunta:
             return JsonResponse({'reply': 'Puedo registrar eventos, darte reportes y ayudarte con tu monitoreo. Prueba con "Registrar un ataque con el anillo".'})
 
-        # Paso 3: Intento de detección de registro de evento
         if 'registrar' in pregunta or 'registra' in pregunta or 'añadir' in pregunta or 'agrega' in pregunta:
             tipo = None
             if 'anomalia' in pregunta:
@@ -105,7 +103,6 @@ def chatbot(request):
                 elif 'anillo' in pregunta:
                     dispositivo = 'Anillo Inteligente'
 
-                # Guardar en sesión y esperar criticidad
                 sesion['tipo'] = tipo
                 sesion['dispositivo'] = dispositivo
                 sesion['esperando_criticidad'] = True
@@ -115,3 +112,52 @@ def chatbot(request):
         return JsonResponse({'reply': '¿Quieres registrar un evento? Dime cosas como "Registrar anomalía con el smartwatch".'})
 
     return JsonResponse({'reply': 'Método no permitido'}, status=405)
+
+def login_doctor(request):
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            try:
+                doctor = Doctor.objects.get(user=user)
+                login(request, user)
+                return redirect('doctor_dashboard')
+            except Doctor.DoesNotExist:
+                error = 'Este usuario no tiene perfil de doctor.'
+        else:
+            error = 'Usuario o contraseña incorrectos.'
+
+    return render(request, 'monitoreo/login_doctor.html', {'error': error})
+
+@login_required
+def doctor_dashboard(request):
+    eventos = Evento.objects.all().order_by('-fecha', '-hora')[:10]
+    return render(request, 'monitoreo/doctor_dashboard.html', {'eventos': eventos})
+
+def logout_view(request):
+    logout(request)
+    return redirect('login_doctor')
+
+# Dentro de views.py
+def login_doctor(request):
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            from .models import Doctor
+            try:
+                doctor = Doctor.objects.get(user=user)
+                login(request, user)
+                return redirect('/doctor/dashboard/?success=1')  # <--- importante
+            except Doctor.DoesNotExist:
+                error = 'Este usuario no tiene perfil de doctor.'
+        else:
+            error = 'Usuario o contraseña incorrectos.'
+
+    return render(request, 'monitoreo/login_doctor.html', {'error': error})

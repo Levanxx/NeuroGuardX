@@ -1,0 +1,54 @@
+{% extends "monitoreo/base.html" %}
+
+{% block content %}
+<!-- SWEETALERT2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% if request.GET.success %}
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Inicio de sesión exitoso',
+    text: '¡Bienvenido al panel, Doctor!',
+    timer: 2500,
+    showConfirmButton: false
+});
+</script>
+{% endif %}
+
+<div class="container mt-5">
+    <h2 class="text-white mb-4">Panel del Doctor</h2>
+    <p class="text-secondary">Aquí puedes ver los últimos eventos registrados en el sistema.</p>
+
+    <table class="table table-dark table-striped table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Criticidad</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Dispositivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evento in eventos %}
+            <tr>
+                <td>{{ evento.get_tipo_display }}</td>
+                <td>{{ evento.get_criticidad_display }}</td>
+                <td>{{ evento.fecha }}</td>
+                <td>{{ evento.hora }}</td>
+                <td>{{ evento.get_dispositivo_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No hay eventos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-end">
+        <a href="{% url 'logout' %}" class="btn btn-outline-light mt-3">Cerrar sesión</a>
+    </div>
+</div>
+{% endblock %}
